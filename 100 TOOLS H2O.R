@@ -188,3 +188,19 @@ bm1 <- h2o.gbm(
   model_id = "gbm_covType1",     ## name the model in H2O
   seed = 2000000)                ## Set the random seed for reproducability
 
+
+gbm3 <- h2o.gbm(
+  training_frame = train,     ##
+  validation_frame = valid,   ##
+  x=1:12,                     ##
+  y=13,                       ## 
+  ntrees = 30,                ## add a few trees (from 20, though default is 50)
+  learn_rate = 0.3,           ## increase the learning rate even further
+  max_depth = 10,             ## 
+  sample_rate = 0.7,          ## use a random 70% of the rows to fit each tree
+  col_sample_rate = 0.7,       ## use 70% of the columns to fit each tree
+  stopping_rounds = 2,        ## 
+  stopping_tolerance = 0.01,  ##
+  score_each_iteration = T,   ##
+  model_id = "gbm_covType3",  ##
+  seed = 2000000)             ##
