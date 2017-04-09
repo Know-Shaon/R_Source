@@ -70,6 +70,7 @@ outcomeName<-'Loan_Status'
 
 
 Now let’s get started with training a random forest and test its accuracy on the test set that we have created:
+
 ```{r}
 
 #Training the random forest model
@@ -81,6 +82,7 @@ testSet$pred_rf<-predict(object = model_rf,testSet[,predictors])
 #Checking the accuracy of the random forest model
 confusionMatrix(testSet$Loan_Status,testSet$pred_rf)
 ```
+
 Confusion Matrix and Statistics
 
           Reference
@@ -115,6 +117,7 @@ Prediction  N  Y
 
 
 Well, as you can see, we got 0.81 accuracy with the individual random forest model. Let’s see the performance of KNN:
+
 ```{r}
 #Training the knn model
 model_knn<-train(trainSet[,predictors],trainSet[,outcomeName],method='knn',trControl=fitControl,tuneLength=3)
@@ -123,6 +126,7 @@ testSet$pred_knn<-predict(object = model_knn,testSet[,predictors])
 #Checking the accuracy of the random forest model
 confusionMatrix(testSet$Loan_Status,testSet$pred_knn)
 ```
+
 Confusion Matrix and Statistics
 
           Reference
@@ -152,6 +156,7 @@ Prediction   N   Y
 
 
 It’s great since we are able to get 0.86 accuracy with the individual KNN model. Let’s see the performance of Logistic regression as well before we go on to create ensemble of these three.
+
 ```{r}
 #Training the Logistic regression model
 model_lr<-train(trainSet[,predictors],trainSet[,outcomeName],method='glm',trControl=fitControl,tuneLength=3)
@@ -162,6 +167,7 @@ testSet$pred_lr<-predict(object = model_lr,testSet[,predictors])
 confusionMatrix(testSet$Loan_Status,testSet$pred_lr)
 
 ```
+
 Confusion Matrix and Statistics
 
           Reference
@@ -343,7 +349,7 @@ Accuracy : 0.8562
 
 
 
-# The following tis the implementation of package ensembleR
+# The following is the implementation of package ensembleR
 #load train and test data
 ```{r}
 #https://datahack-prod.s3.ap-south-1.amazonaws.com/test_file/test_Y3wMUE5_7gLdaTN.csv
@@ -371,7 +377,7 @@ train_processed$Loan_Status<-as.factor(train_processed$Loan_Status)
 
 ```
 
-#Preprocess the test data.
+Preprocess the test data.
 ```{r}
 test$Gender <- ifelse(test$Gender=='Female',0,1)
 test$Married <- ifelse(test$Married=='Yes',0,1)
