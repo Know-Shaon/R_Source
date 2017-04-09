@@ -1,0 +1,139 @@
+---
+title: "Hypothesis-Test"
+author: "V M KISHORE"
+date: "2/21/2017"
+output: html_document
+---
+
+Referance 
+https://www.r-bloggers.com/two-sample-students-t-test-1/
+
+F test to compare two variances
+```{r}
+a = c(175, 168, 168, 190, 156, 181, 182, 175, 174, 179)
+b = c(185, 169, 173, 173, 188, 186, 175, 174, 179, 180)
+
+Ftest<-var.test(a,b)
+```
+
+
+
+
+#Difference between means Hypothesis test usnig t distribution(studient distribution)
+```{r}
+t.test(a,b, var.equal=TRUE, paired=FALSE)
+```
+
+
+
+
+#Chi-Square Test(Relation between tow categorical variables)
+  -Chi-Square test is a statistical method to determine if two categorical
+  -variables have a significant correlation between them
+  
+References
+http://stattrek.com/chi-square-test/goodness-of-fit.aspx?Tutorial=AP
+http://www.statisticshowto.com/what-is-a-chi-square-statistic/
+http://www.r-tutor.com/elementary-statistics/goodness-fit/chi-squared-test-independence
+
+
+Load the library.
+```{r}
+library("MASS")
+
+```
+
+
+Create a data frame from the main data set.
+```{r}
+car.data <- data.frame(Cars93$AirBags, Cars93$Type)
+
+```
+
+
+Create a table with the needed variables.
+```{r}
+car.data = table(Cars93$AirBags, Cars93$Type)
+print(car.data)
+
+```
+
+```{r}
+print(chisq.test(car.data))
+
+```
+
+
+
+
+
+*Analysis of covariance (categorical variable VS continues.Analysis of Covariance also called as ANCOVA.)
+Model with interaction between categorical variable and predictor variable
+Get the dataset.
+```{r}
+input <- mtcars
+
+```
+
+
+Create the regression model.
+```{r}
+result <- aov(mpg~hp*am,data = input)
+print(summary(result))
+```
+
+
+
+Model without interaction between categorical variable
+Get the dataset.
+```{r}
+input <- mtcars
+
+```
+
+
+Create the regression model.
+```{r}
+result <- aov(mpg~hp+am,data = input)
+print(summary(result))
+```
+
+
+
+Comparing Two Models
+Get the dataset.
+```{r}
+input <- mtcars
+
+```
+
+
+
+Create the regression models.
+```{r}
+result1 <- aov(mpg~hp*am,data = input)
+result2 <- aov(mpg~hp+am,data = input)
+
+```
+
+
+Compare the two models.
+```{r}
+print(anova(result1,result2))
+```
+
+*ANOVA test knowing P value
+```{r}
+pf(21.5,3,791,lower.tail=FALSE)
+```
+
+
+
+#Paul inferance test(Inferance for small proportions)
+```{r}
+source("http://bit.ly/dasi_inference")
+paul=factor(c(rep("yes",8),rep("no",0)),level=c("yes","no"))
+inference(paul,est="proportion",type='ht',method="simulation",success="yes",null=.5,alternative="greater")
+
+```
+
