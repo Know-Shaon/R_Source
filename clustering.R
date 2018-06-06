@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 #from desk yes
+=======
+#from web
+#just added one lie from web page
+>>>>>>> e60190caf0e1b50b4b66e389186794f32ed9804e
 #clustering with movies data<Hclust>
 ## Find which cluster Men in Black is in.
 
