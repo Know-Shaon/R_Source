@@ -86,8 +86,6 @@ abline(a = 0, b = 1)
 
 #Linear regression with Wine Data 
 
-# VIDEO 4
-
 # Read in data
 wine = read.csv("wine.csv")
 str(wine)
@@ -119,14 +117,12 @@ SSE = sum(model3$residuals^2)
 SSE
 
 
-# VIDEO 5
 
 # Remove FrancePop
 model4 = lm(Price ~ AGST + HarvestRain + WinterRain + Age, data=wine)
 summary(model4)
 
 
-# VIDEO 6
 
 # Correlations
 cor(wine$WinterRain, wine$Price)
@@ -138,7 +134,7 @@ model5 = lm(Price ~ AGST + HarvestRain + WinterRain, data=wine)
 summary(model5)
 
 
-# VIDEO 7
+
 # Model Validation with the test set.
 
 # Read in test set
@@ -156,7 +152,6 @@ SST = sum((wineTest$Price - mean(wine$Price))^2)
 
 #Linear regression with Money baseball
 
-# VIDEO 2
 
 # Read in data
 baseball = read.csv("baseball.csv")
@@ -178,7 +173,6 @@ WinsReg = lm(W ~ RD, data=moneyball)
 summary(WinsReg)
 
 
-# VIDEO 3
 
 str(moneyball)
 
@@ -191,14 +185,12 @@ summary(RunsReg)
 
 #Linear regression with NBA
 
-# VIDEO 1
 
 # Read in the data
 NBA = read.csv("NBA_train.csv")
 str(NBA)
 
 
-# VIDEO 2
 
 # How many wins to make the playoffs?
 table(NBA$W, NBA$Playoffs)
@@ -214,7 +206,6 @@ WinsReg = lm(W ~ PTSdiff, data=NBA)
 summary(WinsReg)
 
 
-# VIDEO 3
 
 # Linear regression model for points scored
 PointsReg = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + TOV + STL + BLK, data=NBA)
@@ -252,7 +243,7 @@ RMSE_4
 
 # Model Validation with the test set.
 
-# VIDEO 4
+
 
 # Read in test set
 NBA_test = read.csv("NBA_test.csv")
