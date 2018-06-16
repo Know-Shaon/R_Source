@@ -1,0 +1,185 @@
+---
+title: "CTS Case study"
+author: "v m kishore"
+date: "12 April 2018"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+
+
+```{r}
+library(forecast)
+library(tseries)
+library(readr)
+library(ggplot2)
+```
+
+
+```{r}
+#Load Data
+X11_04_2016_TO_10_04_2018HDFCBANKALLN <- read_csv("C:/Users/v m kishore/OneDrive/Data sets/NSE/11-04-2016-TO-10-04-2018HDFCBANKALLN.csv", 
+                                                  col_types = cols(`% Dly Qt to Traded Qty` = col_skip(), 
+                                                                   `Average Price` = col_skip(), `Deliverable Qty` = col_skip(), 
+                                                                   `High Price` = col_skip(), `Last Price` = col_skip(), 
+                                                                   `Low Price` = col_skip(), `No. of Trades` = col_skip(), 
+                                                                   `Open Price` = col_skip(), `Prev Close` = col_skip(), 
+                                                                   Series = col_skip(), Symbol = col_skip(), 
+                                                                   `Total Traded Quantity` = col_skip(), 
+                                                                   Turnover = col_skip()))
+
+stock_data_raw <-X11_04_2016_TO_10_04_2018HDFCBANKALLN
+```
+
+
+
+```{r}
+#Change the date format
+stock_data_raw$date<-strptime(stock_data_raw$Date, format = "%d-%b-%Y")
+stock_data_raw$date=as.Date(stock_data_raw$date)
+stock_data_raw$Date=NULL
+names(stock_data_raw)=c('cprice','date')
+
+```
+
+
+```{r}
+#Planning to implement ARIMA Time series model.
+#The assumption for time series is, data points should be taken at equal interval 
+full_dates <- data.frame(date = seq(as.Date("2016-04-11"), as.Date("2018-04-10"), 
+                                by = "1 day"), 
+                     value = 0)
+
+## Merge the complete data frame with the incomplete to fill in the dates and add 
+## NAs for missing values
+stock_data <- merge(full_dates, stock_data_raw, by = "date", 
+                          all.x = TRUE)
+
+```
+
+
+```{r}
+# Visualization
+ggplot(stock_data, aes(date, cprice)) + geom_line() + scale_x_date('month')  + ylab("Daily stock close price") +
+  xlab("")
+```
+
+```{r}
+# Cleaning outliers and imputation.
+stock_data$clean_cprice = tsclean(stock_data$cprice)
+ggplot() +
+  geom_line(data = stock_data, aes(x = date, y = clean_cprice)) + ylab('Cleaned stock price')
+```
+
+
+```{r}
+# Moving avaeage plots
+#Since the model has a lot of noise , I have considered MA=5 (moving average with 5 lags ) to smoothen 
+stock_data$price_ma5 = ma(stock_data$clean_cprice, order=5) # using the clean count with no outliers
+
+ggplot() +
+  geom_line(data = stock_data[3:645,], aes(x = date, y = cprice, colour = "cprice with outliers")) +
+  geom_line(data = stock_data[3:645,], aes(x = date, y = clean_cprice,   colour = "cprice with no outliers"))  +
+  geom_line(data = stock_data[3:645,], aes(x = date, y = price_ma5, colour = "5 day Moving Average"))  +
+  ylab('Bicycle Count')
+
+#Moving average 5 seams to be with less noise , therefore I prefer to choose this data for forecasting  
+```
+
+```{r}
+# will biil ARIMA model for prediction . Before that need to make the series stationary 
+stock_data_price_cln_diff1<-diff(stock_data$clean_cprice, differences=1)
+stock_data_price_cln_diff1
+plot.ts(stock_data_price_cln_diff1)
+
+#Below time series model looks stationary 
+```
+
+```{r}
+#Stationary hypothesis Test Shows that the alternative is true since the p value is significant 
+adf.test(stock_data_price_cln_diff1, alternative = "stationary")
+
+#Since P value (probability=.01 ) value is very less , considering significance ,.05 as the probability, we can reject the null hypothesis and conclude that alternative #hypothesis is correct. Which means the series is considered as stationary 
+```
+
+```{r}
+#Need to plot acf and Pacf plots , to figure out MA(moving average) and AR(factor)
+acf(stock_data_price_cln_diff1, lag.max=20)
+#Looking at the below plot it is clear that the auto correlation happening for the first 4 lags , because the acf is Significantly high for these lags.
+# so AR = (need to be tuned from 0 to 4)
+```
+```{r}
+# Plot help us to figure out the moving average lags
+pacf(stock_data_price_cln_diff1, lag.max=20)
+# Partial ACF shows a significant PACF factor at lag 1
+# I would like to select lags for AR as 1
+```
+
+```{r}
+#Wish to do an automatic test to determine the parameters for ARIMA
+auto.arima(stock_data$clean_cprice, seasonal=FALSE)
+#The Model Suggest ARIMA(2,1,1), where differentiation=1 MA=2, and AR=2 (according to my test expected)
+```
+
+
+```{r}
+# Building model
+arima_ma_mymodel <- arima(stock_data$clean_cprice, order=c(1,1,1)) 
+arima_ma_auto <- arima(stock_data$clean_cprice, order=c(2,1,1)) 
+ 
+# Best model has bee chosen based on low 'sigma^2 estimated'  low AIC
+
+```
+
+```{r}
+# AR value has been tuned, It was observed low-??? sigma ^2 and a low???AIC  
+#my model performance
+arima_ma_mymodel
+```
+
+```{r}
+#automatic Model performance
+arima_ma_auto
+```
+
+
+```{r}
+# The model that was built with my observed para meters seam to be little better than Automatically learned Parameters , but the difference in sigma^2 and AIC are not significant.
+
+```
+
+```{r}
+#prediction for the next 30 dats using best model
+prediction_30day_ahead<-forecast(arima_ma_mymodel,h=30)    #definetly not better than an average model
+prediction_30day_ahead
+# Below Values shows high and low values for 80 % and 95% confidence intervals 
+# The actual optimistic prediction value is given under Forecast Column
+```
+
+
+```{r}
+# Visualize predicted values.
+plot(prediction_30day_ahead)
+```
+
+
+```{r}
+#Distribution of Error termplot
+plot(density(arima_ma_mymodel$residuals))
+#Error Term us unimodal and nearly normally distributed , therefore results are reliable when #considered with confidence interval 
+```
+
+
+```{r}
+# The forecasted value seems to be very constant, therefore I would like to check the seasonality #with in cycles in the series .
+auto.arima(stock_data$clean_cprice, seasonal=TRUE)
+```
+
+```{r}
+#Above Auto Arima suggests no seasons.
+
+```
+
