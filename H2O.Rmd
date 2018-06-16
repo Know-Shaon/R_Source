@@ -1,0 +1,272 @@
+---
+title: "Untitled"
+author: "v m kishore"
+date: "03 Feb 2018"
+output: html_document
+---
+#Reference 
+#http://docs.h2o.ai/
+#https://www.analyticsvidhya.com/blog/2016/05/h2o-data-table-build-models-large-data-sets/
+
+
+```{r}
+path <- "C:/Users/v m kishore/OneDrive/Data sets/AV/black friday/h20"
+setwd(path)
+
+#install and load the package
+install.packages("data.table")
+library(data.table)
+
+#load data using fread
+train <- fread("C:/Users/v m kishore/OneDrive/Data sets/AV/black friday/h20/train.csv", stringsAsFactors = T)
+test <- fread("C:/Users/v m kishore/OneDrive/Data sets/AV/black friday/h20/test.csv", stringsAsFactors = T)
+
+
+```
+
+
+```{r}
+#No. of rows and columns in Train
+dim(train)
+```
+
+```{r}
+#No. of rows and columns in Test
+dim(test)
+```
+
+
+```{r}
+str(train)
+```
+
+```{r}
+#first prediction using mean
+sub_mean <- data.frame(User_ID = test$User_ID, Product_ID = test$Product_ID, Purchase = mean(train$Purchase))
+write.csv(sub_mean, file = "first_sub.csv", row.names = F)
+```
+
+
+```{r}
+summary (train)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+summary (test)
+```
+
+#combine data set
+```{r}
+test[,Purchase := mean(train$Purchase)]
+c <- list(train, test)
+combin <- rbindlist(c)
+```
+
+
+#analyzing gender variable
+```{r}
+combin[,prop.table(table(Gender))]
+```
+
+
+```{r}
+combin[,prop.table(table(Occupation))]
+```
+
+```{r}
+combin[,prop.table(table(Product_Category_1))]
+```
+
+```{r}
+combin[,prop.table(table(Marital_Status))]
+```
+
+```{r}
+length(unique(combin$Product_ID))
+```
+
+```{r}
+length(unique(combin$User_ID))
+```
+
+```{r}
+colSums(is.na(combin))
+```
+
+
+```{r}
+library(ggplot2)
+ggplot(combin, aes(Age, fill = Gender)) + geom_bar()
+```
+
+
+```{r}
+ggplot(combin, aes(Age, fill = City_Category)) + geom_bar()
+```
+
+
+
+
+```{r}
+install.packages('ggmosaic')
+library(ggmosaic)
+```
+
+```{r}
+ggplot(data = combin) +geom_mosaic(aes(x = product(Age), fill=City_Category))
+```
+
+
+```{r}
+ggplot(data = combin) +geom_mosaic(aes(x = product(Age), fill=Gender))
+```
+
+
+
+```{r}
+ggplot(combin, aes(x=Purchase,fill=Gender)) +
+  geom_histogram()
+```
+
+
+
+```{r}
+ggplot(aes(x = Purchase), data = combin) + 
+  geom_freqpoly(aes(color = Gender), binwidth=10) + 
+  scale_x_continuous(limits = c(0, 2400), breaks = seq(0, 2400, 50)) + 
+  xlab('Purchase') + 
+  ylab('Percentage of users shopping')
+```
+
+
+
+#Data Manipulation using data.table
+```{r}
+combin[,Product_Category_2_NA := ifelse(sapply(combin$Product_Category_2, is.na) ==    TRUE,1,0)]
+combin[,Product_Category_3_NA := ifelse(sapply(combin$Product_Category_3, is.na) ==  TRUE,1,0)]
+```
+
+#impute missing values
+```{r}
+combin[,Product_Category_2 := ifelse(is.na(Product_Category_2) == TRUE, "-999",  Product_Category_2)]
+combin[,Product_Category_3 := ifelse(is.na(Product_Category_3) == TRUE, "-999",  Product_Category_3)]
+```
+
+
+#set column level
+```{r}
+levels(combin$Stay_In_Current_City_Years)[levels(combin$Stay_In_Current_City_Years) ==  "4+"] <- "4"
+```
+
+#recoding age groups
+```{r}
+levels(combin$Age)[levels(combin$Age) == "0-17"] <- 0
+levels(combin$Age)[levels(combin$Age) == "18-25"] <- 1
+levels(combin$Age)[levels(combin$Age) == "26-35"] <- 2
+levels(combin$Age)[levels(combin$Age) == "36-45"] <- 3
+levels(combin$Age)[levels(combin$Age) == "46-50"] <- 4
+levels(combin$Age)[levels(combin$Age) == "51-55"] <- 5
+levels(combin$Age)[levels(combin$Age) == "55+"] <- 6
+```
+
+#convert age to numeric
+
+```{r}
+combin$Age <- as.numeric(combin$Age)
+```
+
+#convert Gender into numeric
+```{r}
+combin[, Gender := as.numeric(as.factor(Gender)) - 1]
+```
+
+#User Count
+```{r}
+combin[, User_Count := .N, by = User_ID]
+```
+
+#Product Count
+```{r}
+combin[, Product_Count := .N, by = Product_ID]
+```
+
+#Mean Purchase of Product
+```{r}
+combin[, Mean_Purchase_Product := mean(Purchase), by = Product_ID]
+```
+
+#Mean Purchase of User
+```{r}
+combin[, Mean_Purchase_User := mean(Purchase), by = User_ID]
+```
+
+
+```{r}
+#one Hot Encoding
+install.packages('dummies')
+library(dummies)
+combin <- dummy.data.frame(combin, names = c("City_Category"), sep = "_")
+```
+
+
+```{r}
+#Divide into train and test
+c.train <- combin[1:nrow(train),]
+c.test <- combin[-(1:nrow(train)),]
+```
+
+```{r}
+c.train <- c.train[c.train$Product_Category_1 <= 18,]
+```
+
+#install JDK
+#http://www.oracle.com/technetwork/java/javase/downloads/jdk10-downloads-4416644.html
+```{r}
+install.packages("h2o")
+library(h2o)
+```
+
+
+```{r}
+localH2O <- h2o.init(nthreads = -1)
+```
+
+```{r}
+h2o.init()
+```
+
+#data to h2o cluster
+```{r}
+train.h2o <- as.h2o(c.train)
+test.h2o <- as.h2o(c.test)
+```
+
+#dependent variable (Purchase)
+```{r}
+y.dep <- 14
+x.indep <- c(3:13,15:20)
+```
+
+#Random Fores
+```{r}
+system.time(rforest.model <- h2o.randomForest(y=y.dep, x=x.indep, training_frame = train.h2o, ntrees = 1000, mtries = 3, max_depth = 4, seed = 1122))
+```
+
+
+```{r}
+h2o.performance(rforest.model)
+```
+
+
+```{r}
+h2o.varimp(rforest.model)
+```
+
+```{r}
+h2o.shutdown()
+```
+
