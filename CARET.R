@@ -9,6 +9,7 @@
 
 #----------------------------------------------------------------------------------------
 #useful resources 
+#http://topepo.github.io/caret/index.html   # The CARET Package
 #https://www.analyticsvidhya.com/blog/2016/12/practical-guide-to-implement-machine-learning-with-caret-package-in-r-with-practice-problem/
 #http://topepo.github.io/caret/using-your-own-model-in-train.html#introduction-1
 #----------------------------------------------------------------------------------------
@@ -21,19 +22,13 @@ install.packages("caret", dependencies = c("Depends", "Suggests"))
 
 
 #Loading caret package
+install.packages("caret")
 library("caret")
 
 #Loading training data
-train <- read.csv("C:/Users/Admin/Downloads/Loan Prediction III/train_u6lujuX_CVtuZ9i.csv", stringsAsFactors = T)
-#Looking at the structure of caret package.
+library(readr)
+train<- read_csv("C:/Users/v m kishore/OneDrive/Data sets/loan prediction/train_u6lujuX_CVtuZ9i.csv")
 str(train)
-
-
-
-
-
-
-
 
 #--------------------------------------------------------------------------------------------------------
 ##Pre-processing using Caret
@@ -41,12 +36,14 @@ str(train)
 sum(is.na(train))   # to know the total NA observations 
 #use Caret to impute these missing values using KNN algorithm
 preProcValues <- preProcess(train, method = c("knnImpute","center","scale"))
-library('RANN')
+#install.packages("RANN")
+#library('RANN')
 train_processed <- predict(preProcValues, train)
 sum(is.na(train_processed))
+train_processed=train_processed[complete.cases(train_processed),]
 
 # seperate target/outcome variable field and Convert into numeric 
-train_processed$Loan_Status<-ifelse(train_processed$Loan_Status=='N',0,1)
+train_processed$Loan_Status<-ifelse(train_processed$Loan_Status=="N",0,1)
 id<-train_processed$Loan_ID
 train_processed$Loan_ID<-NULL
 
@@ -89,25 +86,14 @@ testSet <- train_transformed[-index,]
 control <- rfeControl(functions = rfFuncs,
                       method = "repeatedcv",
                       repeats = 3,
-                      verbose = FALSE)
+                      verbose = F)
 outcomeName<-'Loan_Status'
 predictors<-names(trainSet)[!names(trainSet) %in% outcomeName]
 Loan_Pred_Profile <- rfe(trainSet[,predictors], trainSet[,outcomeName],
                          rfeControl = control)
 Loan_Pred_Profile
-#Recursive feature selection
-#Outer resampling method: Cross-Validated (10 fold, repeated 3 times)
-#Resampling performance over subset size:
-#  Variables Accuracy  Kappa AccuracySD KappaSD Selected
-#4   0.7737 0.4127    0.03707 0.09962        
-#8   0.7874 0.4317    0.03833 0.11168        
-#16   0.7903 0.4527    0.04159 0.11526        
-#18   0.7882 0.4431    0.03615 0.10812        
-#The top 5 variables (out of 16):
-#  Credit_History, LoanAmount, Loan_Amount_Term, ApplicantIncome, CoapplicantIncome
-#Taking only the top 5 predictors
 predictors<-c("Credit_History", "LoanAmount", "Loan_Amount_Term", "ApplicantIncome", "CoapplicantIncome")
-
+varImp(Loan_Pred_Profile)
 
 
 
@@ -123,8 +109,6 @@ model_gbm<-train(trainSet[,predictors],trainSet[,outcomeName],method='gbm')
 model_rf<-train(trainSet[,predictors],trainSet[,outcomeName],method='rf')
 model_nnet<-train(trainSet[,predictors],trainSet[,outcomeName],method='nnet')
 model_glm<-train(trainSet[,predictors],trainSet[,outcomeName],method='glm')
-
-require(Matrix)
 model_xgbTree<-train(x=data.matrix(trainSet[,predictors]),y=data.matrix(trainSet[,outcomeName])
                      ,method='xgbTree')
 
@@ -172,8 +156,8 @@ plot(model_gbm)     #with the two dimwntional plots we can realize the parameter
 #6.2. Using tuneLength
 #--------------------------------------------------------------------------------------------------------
 #using tune length
-  model_gbm<-train(trainSet[,predictors],trainSet[,outcomeName],method='gbm',trControl=fitControl,
-                   tuneLength=10)
+model_gbm<-train(trainSet[,predictors],trainSet[,outcomeName],method='gbm',trControl=fitControl,
+                 tuneLength=10)
 print(model_gbm)
 #------------------------------------------------------Output Starts-------------------------------------
 #Stochastic Gradient Boosting 
@@ -186,7 +170,7 @@ print(model_gbm)
 #Resampling: Cross-Validated (5 fold, repeated 5 times) 
 #Summary of sample sizes: 368, 369, 369, 368, 370, 368, ... 
 #Resampling results across tuning parameters:
-  
+
 #  interaction.depth  n.trees  Accuracy   Kappa    
 #1                  50      0.8017577  0.4594217
 #1                 100      0.7961148  0.4528510
