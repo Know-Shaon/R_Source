@@ -1,262 +1,178 @@
-#Linear regression with simple data 
-#Linear regression with Wine Data 
-#Linear regression with Money baseball
-#Linear regression with NBA
-
-
-#The CPI Data
-year <- rep(2008:2010, each = 4)
-quarter <- rep(1:4, 3)
-cpi <- c(162.2, 164.6, 166.5, 166, 166.2, 167, 168.6, 169.5, 171,172.1, 173.3, 174)
-plot(cpi, xaxt = "n", ylab = "CPI", xlab = "")
-# draw x-axis, where 'las=3' makes text vertical
-axis(1, labels = paste(year, quarter, sep = "Q"), at = 1:12, las = 3) 
-
-
-#Linear Regression
-
-# correlation between CPI and year / quarter
-cor(year, cpi)
-## [1] 0.9096316
-cor(quarter, cpi)
-## [1] 0.3738028
-## build a linear regression model with function lm()
-fit <- lm(cpi ~ year + quarter)
-fit
-##
-## Call:
-## lm(formula = cpi ~ year + quarter)
-##
-## Coefficients:
-## (Intercept) year quarter
-## -7644.488 3.888 1.167
+#Correlation Explained
+#https://www.analyticsvidhya.com/blog/2017/06/a-comprehensive-guide-for-linear-ridge-and-lasso-regression/
+  
 
-## Predection
-##What will the CPI be in 2011?
-cpi2011 <- fit$coefficients[[1]] + fit$coefficients[[2]] * 2011 + fit$coefficients[[3]] * (1:4)
-cpi2011
-## [1] 174.4417 175.6083 176.7750 177.9417
+#------------------------------------------------------------------
+#Correlation between any random variable 
+#------------------------------------------------------------------
+#OpenIntro-page 339
 
-#More details of the model can be obtained with the code below.
+x <- rnorm(50)
+y <- rnorm(50)
+cor(x,y)
+scatter.smooth(x=x,y=y)
 
-attributes(fit)
-## $names
-## [1] "coefficients" "residuals" "effects"
-## [4] "rank" "fitted.values" "assign"
-## [7] "qr" "df.residual" "xlevels"
-## [10] "call" "terms" "model"
-##
-## $class
-## [1] "lm"
-fit$coefficients
-## (Intercept) year quarter
-## -7644.487500 3.887500 1.166667
+#Positive correlation 
+x=rnorm(50)
+y=2*x+3
+cor(x,y)
+scatter.smooth(x=x,y=y)
+#add some noise 
+y=y+rnorm(length(y),mean(y),sd=sd(y))
+cor(x,y)
+scatter.smooth(x=x,y=y)
 
 
+#Negative correlation 
+x=rnorm(50)
+y=-2*x+3
+cor(x,y)
+scatter.smooth(x=x,y=y)
 
-#3D Plot of the Fitted Model
-install.packages("scatterplot3d")     # if you have already installed just load it
 
-library(scatterplot3d)
-s3d <- scatterplot3d(year, quarter, cpi, highlight.3d = T, type = "h",lab = c(2, 3)) # lab: number of tickmarks on x-/y-axes
-s3d$plane3d(fit) # draws the fitted plane
+# Is correlation is sensitive to outliers ?
+x=c(1,2,3,4,5,6,7)
+#y=c(2,4,6,16,25,36)
+y=c(2,4,6,8,10,12,14)  # squared values of x
+cor(x,y)
 
+# an an out lier 
+x=c(1,2,3,4,5,6,7)
+y=c(2,4,6,8,10,12,1000)  # squared values of x
+cor(x,y)
 
-#Prediction of CPIs in 2011
 
-data2011 <- data.frame(year = 2011, quarter = 1:4)
-cpi2011 <- predict(fit, newdata = data2011)
-style <- c(rep(1, 12), rep(2, 4))
-plot(c(cpi, cpi2011), xaxt = "n", ylab = "CPI", xlab = "", pch = style,col = style)
-axis(1, at = 1:16, las = 3, labels = c(paste(year, quarter, sep = "Q"),"2011Q1", "2011Q2", "2011Q3", "2011Q4"))
 
 
-#Generalized Linear Model (GLM)
-#Unifies various other statistical models, including linearregression, logistic regression and Poisson regression
-data("bodyfat", package="TH.data")
-myFormula <- DEXfat ~ age + waistcirc + hipcirc + elbowbreadth +kneebreadth
-bodyfat.glm <- glm(myFormula, family = gaussian("log"), data = bodyfat)
-summary(bodyfat.glm)
 
 
-#Prediction with Generalized Linear Regression Model
-pred <- predict(bodyfat.glm, type = "response")
-plot(bodyfat$DEXfat, pred, xlab = "Observed", ylab = "Prediction")
-abline(a = 0, b = 1)
+#------------------------------------------------------------------
+#http://r-statistics.co/Linear-Regression.html
+#------------------------------------------------------------------
 
-#Linear regression with Wine Data 
+#install.packages("DAAG")
+library(DAAG)
+View(cars)
+scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed")  # scatterplot
+cor(cars$speed,cars$dist)
 
-# Read in data
-wine = read.csv("wine.csv")
-str(wine)
-summary(wine)
 
-# Linear Regression (one variable)
-model1 = lm(Price ~ AGST, data=wine)
-summary(model1)
 
-# Sum of Squared Errors
-model1$residuals
-SSE = sum(model1$residuals^2)
-SSE
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+boxplot(cars$speed, main="Speed", sub=paste("Outlier rows: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
+boxplot(cars$dist, main="Distance", sub=paste("Outlier rows: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
 
-# Linear Regression (two variables)
-model2 = lm(Price ~ AGST + HarvestRain, data=wine)
-summary(model2)
 
-# Sum of Squared Errors
-SSE = sum(model2$residuals^2)
-SSE
 
-# Linear Regression (all variables)
-model3 = lm(Price ~ AGST + HarvestRain + WinterRain + Age + FrancePop, data=wine)
-summary(model3)
 
-# Sum of Squared Errors
-SSE = sum(model3$residuals^2)
-SSE
 
+#-----------------------------
+#Building a linear model 
+#-----------------------------
+linearMod <- lm(dist ~ speed, data=cars)  # build linear regression model on full data
+print(linearMod)
 
+#-----------------------------
+#To diagnose the model 
+#-----------------------------
+summary(linearMod)  # model summary
+par(mfrow=c(2, 2))
+plot(linearMod)
+#The below plots are used to evaluate the performance of regression 
+#Reciduals VS Fitter
+#Standardized Residuals VS Theoretical Quantiles
+#sqrt(|Standardized Residuals|) VsFitted Values
+#standardized residuals VS Leverage
 
-# Remove FrancePop
-model4 = lm(Price ~ AGST + HarvestRain + WinterRain + Age, data=wine)
-summary(model4)
 
 
+#-----------------------------
+#How to calculate the t Statistic and p-Values?
+#-----------------------------
+modelSummary <- summary(linearMod)  # capture model summary as an object
+modelCoeffs <- modelSummary$coefficients  # model coefficients
+beta.estimate <- modelCoeffs["speed", "Estimate"]  # get beta estimate for speed
+std.error <- modelCoeffs["speed", "Std. Error"]  # get std.error for speed
+t_value <- beta.estimate/std.error  # calc t statistic
+p_value <- 2*pt(-abs(t_value), df=nrow(cars)-ncol(cars))  # calc p Value
+p_value
 
-# Correlations
-cor(wine$WinterRain, wine$Price)
-cor(wine$Age, wine$FrancePop)
-cor(wine)
 
-# Remove Age and FrancePop
-model5 = lm(Price ~ AGST + HarvestRain + WinterRain, data=wine)
-summary(model5)
 
+#------------------------------------------------------------
+#plolynomial Regression
+#------------------------------------------------------------
+#Sopurce 
+#https://www.r-bloggers.com/fitting-polynomial-regression-in-r/
+#linear relationship 
+p <- 0.5
+q <- seq(0,100,1)
+y <- p*q
+plot(q,y,type='l',col='red',main='Linear relationship')
 
+#A non-linear relation ship 
+rm(x,y)
+x=seq(5,15,.1)
+y=sin(x)
+plot(x,y)
+plot(x,y,type='l',col='navy',main='Nonlinear relationship',lwd=3)
 
-# Model Validation with the test set.
 
-# Read in test set
-wineTest = read.csv("wine_test.csv")
-str(wineTest)
+#add noice to data
+noise <- rnorm(length(y), mean=mean(y), sd=sd(y))
+noisy.y <- y + noise
+plot(x,noisy.y,col='navy',main='Nonlinear relationship',lwd=3)
 
-# Make test set predictions
-predictTest = predict(model4, newdata=wineTest)
-predictTest
 
-# Compute R-squared
-SSE = sum((wineTest$Price - predictTest)^2)
-SST = sum((wineTest$Price - mean(wine$Price))^2)
-1 - SSE/SST
+#build a polynomial regression
 
-#Linear regression with Money baseball
+library(ggplot2)
+data=data.frame(x,y,noisy.y)
+ggplot(aes(x=x,y=noisy.y),data=data)+geom_point()
+ggplot(aes(x=x,y=noisy.y),data=data)+geom_point()+geom_smooth()
+ggplot(aes(x=x,y=noisy.y),data=data)+geom_point()+geom_smooth(method=lm)
 
 
-# Read in data
-baseball = read.csv("baseball.csv")
-str(baseball)
+model <- lm(noisy.y ~ poly(x,5))
+summary(model)
+ggplot(aes(x=x,y=noisy.y),data=data)+geom_point()+geom_smooth(method = lm,formula =noisy.y ~ poly(x,15))
 
-# Subset to only include moneyball years
-moneyball = subset(baseball, Year < 2002)
-str(moneyball)
 
-# Compute Run Difference
-moneyball$RD = moneyball$RS - moneyball$RA
-str(moneyball)
 
-# Scatterplot to check for linear relationship
-plot(moneyball$RD, moneyball$W)
+#What happens if we apply linear regression to a data , that has no-linear relationships
+model <- lm(noisy.y ~ x)
+summary(model)
+plot(model)
 
-# Regression model to predict wins
-WinsReg = lm(W ~ RD, data=moneyball)
-summary(WinsReg)
 
 
+#Model design for bios and variance problems.
+rm(x,y)
+x=seq(5,15,.1)
+y=sin(x)
+noise <- rnorm(length(y), mean=mean(y), sd=sd(y))
+noisy.y <- y + noise
+my_data=data.frame(noisy.y,x,x^2,x^3,x^4,x^5,x^6,x^7,x^8,x^9,x^10,x^11,x^12,x^13,x^14,x^15)
 
-str(moneyball)
+#Sampling take 60% as train data 40% as test data.
+library(caret)
+index <- createDataPartition(my_data$noisy.y, p=0.60, list=FALSE)
+trainSet <- my_data[ index,]
+testSet <- my_data[-index,]
 
-# Regression model to predict runs scored
-RunsReg = lm(RS ~ OBP + SLG + BA, data=moneyball)
-summary(RunsReg)
 
-RunsReg = lm(RS ~ OBP + SLG, data=moneyball)
-summary(RunsReg)
+#model under fitted 
 
-#Linear regression with NBA
 
+#model over fitter 
+#model <- lm(noisy.y ~ x^2+x^3+x^4+x^5+x^6+x^7+x^8+x^9+x^10+x^11+x^12+x^13+x^14+x^15)
 
-# Read in the data
-NBA = read.csv("NBA_train.csv")
-str(NBA)
 
+#model rightly fitted 
+model <- lm(trainSet$noisy.y ~ trainSet$x.2+trainSet$x.3+trainSet$x.4+trainSet$x.5)
+names=c('x.2','x.3','x.4','x.5')
+summary(model)
 
 
-# How many wins to make the playoffs?
-table(NBA$W, NBA$Playoffs)
-
-# Compute Points Difference
-NBA$PTSdiff = NBA$PTS - NBA$oppPTS
-
-# Check for linear relationship
-plot(NBA$PTSdiff, NBA$W)
-
-# Linear regression model for wins
-WinsReg = lm(W ~ PTSdiff, data=NBA)
-summary(WinsReg)
-
-
-
-# Linear regression model for points scored
-PointsReg = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + TOV + STL + BLK, data=NBA)
-summary(PointsReg)
-
-# Sum of Squared Errors
-PointsReg$residuals
-SSE = sum(PointsReg$residuals^2)
-SSE
-
-# Root mean squared error
-RMSE = sqrt(SSE/nrow(NBA))
-RMSE
-
-# Average number of points in a season
-mean(NBA$PTS)
-
-# Remove insignifcant variables
-summary(PointsReg)
-
-PointsReg2 = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + STL + BLK, data=NBA)
-summary(PointsReg2)
-
-PointsReg3 = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + STL + BLK, data=NBA)
-summary(PointsReg3)
-
-PointsReg4 = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + STL, data=NBA)
-summary(PointsReg4)
-
-# Compute SSE and RMSE for new model
-SSE_4 = sum(PointsReg4$residuals^2)
-RMSE_4 = sqrt(SSE_4/nrow(NBA))
-SSE_4
-RMSE_4
-
-# Model Validation with the test set.
-
-
-
-# Read in test set
-NBA_test = read.csv("NBA_test.csv")
-
-# Make predictions on test set
-PointsPredictions = predict(PointsReg4, newdata=NBA_test)
-
-# Compute out-of-sample R^2
-SSE = sum((PointsPredictions - NBA_test$PTS)^2)
-SST = sum((mean(NBA$PTS) - NBA_test$PTS)^2)
-R2 = 1 - SSE/SST
-R2
-
-# Compute the RMSE
-RMSE = sqrt(SSE/nrow(NBA_test))
-RMSE
+#validation 
+y.predict=predict(model,testSet[2:5,])
