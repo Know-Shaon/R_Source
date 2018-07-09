@@ -1,0 +1,66 @@
+##Reference Source
+##https://cran.r-project.org/web/packages/pdp/README.html
+#---------------------------------------------
+# Install from CRAN (recommended)
+  install.packages("pdp")
+  
+  # Alternatively, install the development version from GitHub
+  devtools::install_github("bgreenwell/pdp")
+
+
+#---------------------------------------------
+# Fit a random forest to the Boston housing data for refression problem
+library(randomForest)  # install.packages("randomForest")
+data (boston)  # load the boston housing data
+set.seed(101)  # for reproducibility
+boston.rf <- randomForest(cmedv ~ ., data = boston)
+
+
+
+# Partial dependence of cmedv on lstat and rm
+library(pdp)
+pd <- partial(boston.rf, pred.var = c("lstat", "rm"), chull = TRUE)
+head(pd)  # print first 6 rows
+#>     lstat      rm     yhat
+#> 1  7.5284 3.66538 24.13683
+#> 2  8.2532 3.66538 23.24916
+#> 3  8.9780 3.66538 23.13119
+#> 4  9.7028 3.66538 22.13531
+#> 5 10.4276 3.66538 20.62331
+#> 6 11.1524 3.66538 20.51258
+
+
+
+
+# Lattice version
+p1 <- plotPartial(pd, main = "lattice version")
+
+# ggplot2 version
+library(ggplot2)
+p2 <- autoplot(pd, contour = TRUE, main = "ggplot2 version", 
+               legend.title = "Partial\ndependence")
+
+# Show both plots in one figure
+grid.arrange(p1, p2, ncol = 2)
+
+
+#---------------------------------------------
+#Next, we’ll fit a classification model to the Pima Indians Diabetes data.
+# Fit an SVM to the Pima Indians diabetes data
+library(kernlab)  # install.packages("kernlab")
+data (pima)  # load the Pima Indians diabetes data
+pima.svm <- ksvm(diabetes ~ ., data = pima, type = "C-svc", kernel = "rbfdot",
+                 C = 0.5, prob.model = TRUE)
+
+# Partial dependence of diabetes test result on glucose (default is logit scale)
+pd.glucose <- partial(pima.svm, pred.var = "glucose", train = pima)
+
+# Partial dependence of diabetes test result on glucose (probability scale)
+pd.glucose.prob <- partial(pima.svm, pred.var = "glucose", prob = TRUE, 
+                           train = pima)
+
+# Show both plots in one figure
+grid.arrange(autoplot(pd.glucose, main = "Logit scale"), 
+             autoplot(pd.glucose.prob, main = "Probability scale"), 
+             ncol = 2)
+
