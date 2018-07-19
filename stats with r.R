@@ -2,10 +2,10 @@
 
 #Create a sample of 50 random numbers from a normal distribution.
 y <- rnorm(50)  #Takes random numbers from a normaldistribution where mean=0 SD-1
-D = density(y)
+D = density(y)  #look for their density 
 plot(D)   #Observe the distribution as nearly normal 
 
-#we can mention mean and SD explicitly as below a
+#We can mention mean and SD explicitly as below a
 y <- rnorm(50,mean=0,sd=3)
 D = density(y)
 plot(D)
@@ -51,12 +51,10 @@ pt(2,df=30)  # Percentile at a specific z-score
 #How Normal and Student distribution are different 
 #---------------------------
 pnorm(2, lower.tail = FALSE)
+# 0.9772499
 pt(2, df = 50, lower.tail = FALSE)
-
-pnorm(2)
-pt(2,df =5)
-
-
+# [1] 0.9745265
+#Note: Observation that appears very significant in normal distriution is not actually significant in 't' distribution 
 
 
 
@@ -64,18 +62,18 @@ pt(2,df =5)
 #Confidence interval 
 #----------------------
 #The sd of the 'average week-end sales distribution' is 65 and the mean is 130,considering 45 sample used for the experiment.
-#With 95 confidence interval , what is the minimum and maximum sales values on nay day.
+#With 95 confidence interval , what is the minimum and maximum sales values on any day.
 
 ME=t-score*SE   # t-score for 95% confidence interval is 1.654
 
 qt(.95,df=45)  # find the t-score for 95% confidance interwal . It is 1.679427
 
-ME=1.679427*(65/sqrt(45))
-=1.679427*(65/6.708204)
-=1.679427*9.689628
-ME=16.27302
-confidance interval =(mean-me, mean+me)
-=(130-16.27302,130+16.27302)
+ME=1.679427*(65/sqrt(65))
+ME
+mean=130
+# ME=13.53997
+confidance_interval =c(mean-ME, mean+ME)
+# [1] 116.46 143.54
 
 
 
@@ -86,40 +84,12 @@ confidance interval =(mean-me, mean+me)
 #----------------------
 #It was observe that, the sales of a product was sold 150 units on average after recruting a SE.
 #The sd of the distribution is 65 and the mean is 130, considering 45 sample used for the experiment.
-#Perform a hypothesis test in order to find out the significance of the sales ans Reward the executive.
+#Perform a hypothesis test in order to find out the significance of the sales after Recruting the executive.
 SE=65/(sqrt(45))
 t=(150-130)/SE
 t
 pt(t, df = 45, lower.tail = FALSE)    
-
-
-
-
-
-
-#------------------
-#POwer calculation 
-#------------------
-#Continuation to above problem.
-#The sales manager anyway anticipated an average sales growth of 140 units , 
-#what is the power of test in order to perform the hypothesis test to evaluate the performance of SE.
-#Current mean 130
-CM=130
-#Antisipated 140
-AM=140
-#Shift required 
-SR=(AM-CM)
-SE=(65/(sqrt(45)))
-Z=SR/SE
-#Percentile at SR
-pt(Z,df=45)
-#Test requires 0.8462138% power
-
-# Perform the test with the above power
-SE=sqrt((65/(sqrt(45)))^2+(65/(sqrt(45)))^2)
-t=(150-140)/SE
-t
-pt(t, df = 45, lower.tail = FALSE)    
+# [1] 0.02240287   # significant 
 
 
 
@@ -134,9 +104,7 @@ D = density(y)
 plot(D)  
 plot(dbinom(1:100,100,.5))  # Density from 1 success to 100 successes 
 
-#Gender discrimination test with binomial distribution 
-y = pbinom(1,48,.5)
-y
+
 #----Binomial distribution
 # Create a sample of 50 numbers which are incremented by 1.
 x <- seq(0,50,by = 1)
@@ -156,7 +124,7 @@ print(x)
 
 
 
-#-----Chi-Square Test(Relation between tow categorical variables)
+#-----Chi-Square Test(Relation between two catogorical varibales is significant or not )
 #Chi-Square test is a statistical method to determine if two categorical
 #variables have a significant correlation between them
 
@@ -230,19 +198,18 @@ summary(result)
 
 #Simulation inference on small sample proportion
 -----------------------------
-##Paul the Octopus predicted 8 World Cup games, and predicted them all
-##correctly. Does this provide convincing evidence that Paul actually has psychic
-##powers, i.e. that he does better than just randomly guessing?
-
-# H0: p = 0.5
-# HA: p > 0.5
-# 1. independence:
-#   2. sample size / skew:
-#   we can assume that his guesses are independent
-# n = 8 x 0.5 = 4 ?? not met
-# p = 1 distribution of sample proportions cannot be
+  ##Paul the Octopus predicted 8 World Cup games, and predicted them all
+  ##correctly. Does this provide convincing evidence that Paul actually has psychic
+  ##powers, i.e. that he does better than just randomly guessing?
+  
+  # H0: p = 0.5
+  # HA: p > 0.5
+  # 1. independence:
+  #   2. sample size / skew:
+  #   we can assume that his guesses are independent
+  # n = 8 x 0.5 = 4 ?? not met
+  # p = 1 distribution of sample proportions cannot be
 # assumed to be nearly normal
 source("http://bit.ly/dasi_inference")
 paul = factor(c(rep("yes", 8), rep("no", 0)), levels = c("yes","no"))
 inference(paul, est = "proportion", type = "ht", method = "simulation",success = "yes", null = 0.5, alternative = "greater")
-
