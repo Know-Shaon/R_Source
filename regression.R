@@ -1,4 +1,5 @@
 #Correlation Explained
+#https://www.analyticsvidhya.com/blog/2016/07/deeper-regression-analysis-assumptions-plots-solutions/
 #https://www.analyticsvidhya.com/blog/2017/06/a-comprehensive-guide-for-linear-ridge-and-lasso-regression/
   
 
@@ -36,7 +37,7 @@ x=c(1,2,3,4,5,6,7)
 y=c(2,4,6,8,10,12,14)  # squared values of x
 cor(x,y)
 
-# an an out lier 
+# an an outlier 
 x=c(1,2,3,4,5,6,7)
 y=c(2,4,6,8,10,12,1000)  # squared values of x
 cor(x,y)
