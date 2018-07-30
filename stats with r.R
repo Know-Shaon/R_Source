@@ -66,7 +66,7 @@ pt(2, df = 50, lower.tail = FALSE)
 
 ME=t-score*SE   # t-score for 95% confidence interval is 1.654
 
-qt(.95,df=45)  # find the t-score for 95% confidance interwal . It is 1.679427
+qt(.95,df=44)  # find the t-score for 95% confidance interwal . It is 1.679427
 
 ME=1.679427*(65/sqrt(65))
 ME
