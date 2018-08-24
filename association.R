@@ -75,3 +75,22 @@ write(groceryrules, file = "groceryrules.csv",sep = ",", quote = TRUE, row.names
 
 library(arules)
 plot(groceryrules,method="graph",interactive=FALSE,shading=NA)
+
+#------------------------------------------------------
+#In case your data is not like one unique transaction per row , you can use the below logic to convert as transactional.
+#from
+#T1|P1
+#T1|P2
+#T1|P3
+#T1|P4
+#To 
+#T1|P1,P2,P3,P4
+#------------------------------------------------------
+# install.packages('arules')
+# library(arules)
+# datafraem <- read.csv("Telecom.csv",head=TRUE,sep="," , as.is = T)
+# trans <- as(split(datafraem[,2], datafraem[,1]), "transactions")
+# summary(trans)
+# inspect(trans[1:5])
+# itemFrequencyPlot(trans, support = 0.1)
+# image(trans[1:2000])
