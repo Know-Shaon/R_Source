@@ -368,3 +368,25 @@ ggplot(melt(households, id="Year"),
        aes(x=Year, y=value, color=variable)) +
   geom_line(size=2) + geom_point(size=5) +  
   ylab("Percentage of Households")
+
+#------------------------------------
+#Ladder plot with 2 and 3 variables 
+install.packages('plotrix')
+library(plotrix)
+
+#Construct a data frame of two variable 
+x<-data.frame(A=c(1:10), B=c(2:11)+rnorm(10))
+
+#Construct a data frame of three variable 
+y<-data.frame(x, C=c(1:10)+rnorm(10))
+
+#Need three plots in a single row
+opar <- par(mfrow=c(1,3))
+
+ladderplot(x)  #Plot Horizontally 
+ladderplot(x, col=1:10, vertical=FALSE) #Plot vertically 
+ladderplot(y, col=1:10) #Plot with three variables 
+
+#Display plots 
+par(opar)
+
