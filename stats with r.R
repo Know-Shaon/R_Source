@@ -64,16 +64,16 @@ pt(2, df = 50, lower.tail = FALSE)
 #The sd of the 'average week-end sales distribution' is 65 and the mean is 130,considering 45 sample used for the experiment.
 #With 95 confidence interval , what is the minimum and maximum sales values on any day.
 
-ME=t-score*SE   # t-score for 95% confidence interval is 1.654
+> qt(.975,df=45)
+[1] 2.014103
+ME=t-score*SE   # t-score for 95% confidence interval is 2.014103
 
-qt(.95,df=44)  # find the t-score for 95% confidance interwal . It is 1.679427
-
-ME=1.679427*(65/sqrt(65))
+ME=2.014103*(65/sqrt(65))
 ME
 mean=130
-# ME=13.53997
+# ME=16.23822
 confidance_interval =c(mean-ME, mean+ME)
-# [1] 116.46 143.54
+# [1] 113.7618 146.2382
 
 
 
