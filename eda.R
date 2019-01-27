@@ -21,8 +21,8 @@
 library(ggplot2)
 
 #Loading data
-#library(readr)
-WHO <- read_csv("C:/Users/v m kishore/OneDrive/Data sets/WHO.csv", 
+library(readr)
+WHO <- read_csv("WHO.csv", 
                 col_types = cols(FertilityRate = col_number(), 
                                  GNI = col_number(), LiteracyRate = col_number(), 
                                  PrimarySchoolEnrollmentFemale = col_number(), 
@@ -78,7 +78,7 @@ tapply(WHO$LiteracyRate, WHO$Region, min, na.rm='True')    # this is the way we 
 
 #loading Data into R
 #library(readr)
-USDA <- read_csv("C:/Users/v m kishore/OneDrive/Data sets/USDA.csv")
+USDA <- read_csv("USDA.csv")
 View(USDA)
 
 summary(USDA)   # to show the summary of the numerical variables 
@@ -149,63 +149,63 @@ getmode <- function(v) {
 
 
 
-    
+
 #----Linear regression
 x=USDA$Calories
 y=USDA$Carbohydrate
 relation <- lm(y~x)
-      
+
 # Give the chart file a name.
 png(file = "linearregression.png")
-      
+
 # Plot the chart.
 plot(y,x,col = "blue",main = "Calories & Carbohydrate Regression",
      abline(lm(x~y)),cex = 1.3,pch = 16,xlab = "Calories",ylab = "Carbohydrate")
-      
+
 # Save the file.
 dev.off()
 ggplot(aes(x=Calories,y=Carbohydrate),data=USDA)+geom_smooth()+geom_abline(slope=,06,intercept = 5.37)
 ggplot(aes(x=Calories,y=Carbohydrate),data=USDA)+geom_smooth()+geom_point()
-      
+
 #-----Logistic regression
 am.data = glm(formula = am ~ cyl + hp + wt, data = input, family = binomial)
 print(summary(am.data))
-      
-      
+
+
 #----RandomForest
 install.packages("randomForest")
 library(randomForest)
 randomForest(formula, data)
-      
+
 #----Decision Trees
 install.packages("party")
 ctree(formula, data)
-      
+
 #----TimeSeries with R
 # Get the data points in form of a R vector.
 rainfall1 <- c(799,1174.8,865.1,1334.6,635.4,918.5,685.5,998.6,784.2,985,882.8,1071)
 rainfall2 <-
-        c(655,1306.9,1323.4,1172.2,562.2,824,822.4,1265.5,799.6,1105.6,1106.7,1337.8)
+  c(655,1306.9,1323.4,1172.2,562.2,824,822.4,1265.5,799.6,1105.6,1106.7,1337.8)
 # Convert them to a matrix.
 combined.rainfall <-  matrix(c(rainfall1,rainfall2),nrow = 12)
 # Convert it to a time series object.
 rainfall.timeseries <- ts(combined.rainfall,start = c(2012,1),frequency = 12)
 # Print the timeseries data.
 print(rainfall.timeseries)
-      
-      
+
+
 
 #######E X C E R S I Z E -4##################*
 #####################################*
-      
+
 #Changing the Data type
-      
+
 is.numeric(), is.character(), is.vector(), is.matrix(), is.data.frame()
 as.numeric(), as.character(), as.vector(), as.matrix(), as.data.frame()
-      
+
 #Removing duplicates 
 unique(x)
-      
+
 #Merging Data frames
 # merge two data frames by ID
 total <- merge(data_frameA,data_frameB,by="ID")
@@ -213,7 +213,7 @@ total <- merge(data_frameA,data_frameB,by="ID")
 total <- merge(data_frameA,data_frameB,by=c("ID","Country"))
 #Appending Data frames
 total <- rbind(data_frameA, data_frameB)
-      
+
 #Sorting Data
 # sorting examples using the mtcars dataset
 attach(mtcars)
@@ -224,16 +224,16 @@ newdata <- mtcars[order(mpg, cyl),]
 #sort by mpg (ascending) and cyl (descending)
 newdata <- mtcars[order(mpg, -cyl),] 
 detach(mtcars)
-      
-      
+
+
 # aggregate data frame mtcars by cyl and vs, returning means
 # for numeric variables
 attach(mtcars)
 aggdata <-aggregate(mtcars, by=list(cyl,vs), FUN=mean, na.rm=TRUE)
 print(aggdata)
 detach(mtcars)
-      
-      
+
+
 #The Reshape Package
 # example using built-in dataset 
 mtcars
@@ -242,51 +242,51 @@ t(mtcars)
 install.packages("reshape")
 library(reshape)
 mydata <- melt(mtcars, id=c("gear","carb"))
-      
+
 # cast the melted data
 # cast(data, formula, function) 
 subjmeans <- cast(mydata,  formula =...~ variable, fun.aggregate=mean)
 timemeans <- cast(mydata, time~variable, mean)
-      
-      
+
+
 #####Subsetting Data############################################
 #http://www.statmethods.net/management/subset.html
 #Selecting (Keeping) Variables
 # select variables v1, v2, v3
 myvars <- c("v1", "v2", "v3")
 newdata <-mydata[myvars]
-      
+
 #Excluding (DROPPING) Variables
 #exclude variables v1, v2, v3
 subset<- subjmeans[,names(subjmeans) %in% c("gear","carb","mpg")]
 newdata <- mydata[!myvars]
 # exclude 3rd and 5th variable 
 newdata <- mydata[c(-3,-5)]
-      
+
 #Selecting Observations
 # first 5 observations
 newdata <- mydata[1:5,]
 # based on variable values
 newdata <- mydata[ which(mydata$gender=='F' 
-                               & mydata$age > 65), ]
-      
+                         & mydata$age > 65), ]
+
 #Selection using the Subset Function
 # using subset function 
 newdata <- subset(mydata, age >= 20 | age < 10, 
-                        select=c(ID, Weight))
-      
+                  select=c(ID, Weight))
+
 #In the next example, we select all men over the age of 25 and we keep variables weight through income (weight, income and all columns between them).
 # using subset function (part 2)
 newdata <- subset(mydata, sex=="m" & age > 25,
-                        select=weight:income)
-      
+                  select=weight:income)
+
 #Random sample
 # take a random sample of size 50 from a dataset mydata 
 # sample without replacement
 mysample <- mydata[sample(1:nrow(mydata), 50,	replace=FALSE),]
-      
-      
-      
+
+
+
 #####Working with Factors##########
 #http://www.dummies.com/programming/r/how-to-convert-a-factor-in-r/
 directions <- c("North", "East", "South", "South")
@@ -296,7 +296,7 @@ as.character(directions.factor)
 #Use as.numeric() to convert a factor to a numeric vector
 as.numeric(directions.factor)
 
-      
+
 
 ############################################
 #Set operations
