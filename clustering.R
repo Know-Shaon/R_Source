@@ -134,11 +134,10 @@ str(healthyMatrix)
 # Plot image
 image(healthyMatrix,axes=FALSE,col=grey(seq(0,1,length=256)))
 
-# Hierarchial clustering
+# Convert into vector
 healthyVector = as.vector(healthyMatrix)
-distance = dist(healthyVector, method = "euclidean")
 
-# Specify number of clusters
+# Specify number of clusters (This must can be turned with elbow method)
 k = 5
 
 # Run k-means
