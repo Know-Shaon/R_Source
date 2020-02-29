@@ -8,7 +8,7 @@ library(arulesViz)
 
 
 #Read Transactions
-groceries <- read.transactions("https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/groceries.csv", sep = ",")
+groceries <- read.transactions("https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/groceries.csv", sep = ",")
 summary(groceries)
 
 
